@@ -143,7 +143,9 @@ def ui_block_animation():
 def ui_block_processing():
     with gr.Blocks():
         with gr.Accordion("Prompt Template, applied to each keyframe below", open=False):
-            gr.HTML("<p>similar to styles, these prompts are applied to every frame in addition to the"
+            gr.HTML("<p>Prompt interpolation will set both before and after prompts with a weighting that linearly "
+                    "grows from the current prompt to the next.<br>"
+                    "Similar to styles, these prompt templates are applied to every frame in addition to the"
                     " keyframe / VTT prompts below.</p>")
         prompt_interpolation = gr.Checkbox(label='Prompt Interpolation', value=True)
         with gr.Row():
