@@ -17,7 +17,7 @@ from modules import shared, sd_models
 
 
 def myprocess(_steps, _sampler_index, _width, _height, _cfg_scale, _denoising_strength, _total_time, _fps,
-              _smoothing, _add_noise, _noise_strength, _seed, _seed_travel,
+              _smoothing, _add_noise, _noise_strength, _seed, _seed_travel, _initial_img,
               _loopback_mode, _prompt_interpolation, _tmpl_pos, _tmpl_neg,
               _key_frames, _vid_gif, _vid_mp4, _vid_webm, _style_pos, _style_neg):
     # Build a dict of the settings, so we can easily pass to sub functions.
@@ -63,6 +63,9 @@ def myprocess(_steps, _sampler_index, _width, _height, _cfg_scale, _denoising_st
     with open(settings_filename, "w+", encoding="utf-8") as f:
         json.dump(myset, f, ensure_ascii=False, indent=4)
 
+    # Have to add the initial picture later on as it doesn't serialise well.
+    myset['initial_img'] = _initial_img
+
     # Prepare the processing objects with default values.
     ptxt, pimg = prepwork.setup_processors(myset)
 
@@ -106,7 +109,14 @@ def ui_block_generation():
             seed = gr.Number(label='Seed', value=-1)
             seed_travel = gr.Checkbox(label='Seed Travel', value=True)
 
-    return steps, sampler_index, width, height, cfg_scale, denoising_strength, seed, seed_travel
+        with gr.Row():
+            with gr.Accordion("Initial Image", open=False):
+                initial_img = gr.inputs.Image(label = 'Upload starting image',
+                                              image_mode ='RGB',
+                                              type='pil',
+                                              optional=True)
+
+    return steps, sampler_index, width, height, cfg_scale, denoising_strength, seed, seed_travel, initial_img
 
 
 def ui_block_animation():
@@ -227,7 +237,7 @@ def on_ui_tabs():
             # left Column
             with gr.Column():
                 with gr.Tab("Generation"):
-                    steps, sampler_index, width, height, cfg_scale, denoising_strength, seed, seed_travel = \
+                    steps, sampler_index, width, height, cfg_scale, denoising_strength, seed, seed_travel, image_list =\
                         ui_block_generation()
 
                     total_time, fps, smoothing, add_noise, noise_strength, loopback_mode = ui_block_animation()
@@ -245,8 +255,8 @@ def on_ui_tabs():
 
             btn_proc.click(fn=myprocess,
                            inputs=[steps, sampler_index, width, height, cfg_scale, denoising_strength, total_time,
-                                   fps, smoothing, add_noise, noise_strength, seed,
-                                   seed_travel, loopback_mode, prompt_interpolation,
+                                   fps, smoothing, add_noise, noise_strength, seed, seed_travel, image_list,
+                                   loopback_mode, prompt_interpolation,
                                    tmpl_pos, tmpl_neg, key_frames, vid_gif, vid_mp4, vid_webm, style_pos, style_neg],
                            outputs=gallery)
 
