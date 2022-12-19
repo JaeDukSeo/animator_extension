@@ -318,7 +318,8 @@ def process_keyframes(mysettings: dict) -> pd.DataFrame:
         # print("DBG seed: Only one seed, series fill.")
         # Only initial seed given, load in initial value, series fill. Set sub-seed to None to disable.
         df.at[0, 'seed_start'] = my_seeds[0]
-        df.at[df.index[-1], 'seed_start'] = df.at[df.index[0], 'seed_start'] + frame_count
+        df.at[df.index[-1], 'seed_start'] = my_seeds[0] + frame_count
+        df.loc[:, 'seed_start'] = df.loc[:, 'seed_start'].interpolate(limit_direction='both').map(int)
         df['seed_end'] = None
         df['seed_str'] = 0
 
