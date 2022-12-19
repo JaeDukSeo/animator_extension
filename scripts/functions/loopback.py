@@ -12,7 +12,6 @@ from PIL import Image
 def main_process(myset: dict,
                  ptxt: processing.StableDiffusionProcessingTxt2Img,
                  pimg: processing.StableDiffusionProcessingImg2Img) -> any:
-
     apply_colour_corrections = True
     x_shift_cumulative = 0
     y_shift_cumulative = 0
@@ -118,10 +117,16 @@ def main_process(myset: dict,
                 init_img = init_img.convert('RGB')
         elif frame_no == 0:
             # Generate initial image
-            ptxt.prompt = str(df.loc[0, ['pos_prompt']][0])
-            ptxt.negative_prompt = str(df.loc[0, ['neg_prompt']][0])
-            init_processed = processing.process_images(ptxt)
-            init_img = init_processed.images[0]
+            print(f"Initial Image: {myset['initial_img']}")
+            if myset['initial_img'] is None:
+                ptxt.prompt = str(df.loc[0, ['pos_prompt']][0])
+                ptxt.negative_prompt = str(df.loc[0, ['neg_prompt']][0])
+                init_processed = processing.process_images(ptxt)
+                init_img = init_processed.images[0]
+            else:
+                init_img = myset['initial_img']
+                if init_img.size != (myset['width'], myset['height']):
+                    init_img = init_img.resize((myset['width'], myset['height']), Image.Resampling.LANCZOS)
             initial_color_corrections = [processing.setup_color_correction(init_img)]
         else:
             init_img = last_frame
@@ -141,8 +146,8 @@ def main_process(myset: dict,
         y_shift_cumulative = y_shift_cumulative + y_shift_per_frame
 
         if x_shift_per_frame != 0 or y_shift_per_frame != 0 or rot_per_frame != 0 or zoom_factor != 1.0:
-            init_img = preprocessing.transform_image(init_img, rot_per_frame, int(x_shift_cumulative), int(y_shift_cumulative),
-                                                     zoom_factor)
+            init_img = preprocessing.transform_image(init_img, rot_per_frame, int(x_shift_cumulative),
+                                                     int(y_shift_cumulative), zoom_factor)
 
         # Subtract the integer portion we just shifted.
         x_shift_cumulative = x_shift_cumulative - int(x_shift_cumulative)
