@@ -2,7 +2,7 @@ import math
 import os
 import cv2
 
-from extensions.animator.scripts.functions import keyframe_functions, preprocessing, postprocessing
+from scripts.functions import keyframe_functions, preprocessing, postprocessing
 from modules import processing, shared, sd_models
 from modules.processing import Processed
 from modules.shared import state
