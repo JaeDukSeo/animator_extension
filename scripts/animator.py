@@ -11,7 +11,7 @@ import time
 
 import gradio as gr
 
-from extensions.animator.scripts.functions import prepwork, sequential, loopback, export
+from scripts.functions import prepwork, sequential, loopback, export
 from modules import script_callbacks
 from modules import shared, sd_models
 
