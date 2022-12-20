@@ -107,7 +107,7 @@ def ui_block_generation():
                                                label='Denoising strength', value=0.40)
         with gr.Row():
             seed = gr.Number(label='Seed', value=-1)
-            seed_travel = gr.Checkbox(label='Seed Travel', value=True)
+            seed_travel = gr.Checkbox(label='Seed Travel', value=False)
 
         with gr.Row():
             with gr.Accordion("Initial Image", open=False):
