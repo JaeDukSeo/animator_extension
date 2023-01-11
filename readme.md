@@ -35,6 +35,10 @@ installation tab on the extensions tab.
 
 `https://github.com/Animator-Anon/animator_extension`
 
+Or use this command:
+
+`git clone https://github.com/Animator-Anon/animator_extension extensions/animator_extension`
+
 ## Explanation of settings:
 
 Many explanations exist in the up in expandable sections of the page. Look for a triangle right side.

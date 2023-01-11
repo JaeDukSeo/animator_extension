@@ -6,7 +6,7 @@ from scripts.functions import keyframe_functions, preprocessing, postprocessing
 from modules import processing, shared, sd_models
 from modules.processing import Processed
 from modules.shared import state
-from PIL import Image
+from PIL import Image, ImageEnhance
 
 
 def main_process(myset: dict,
@@ -33,6 +33,10 @@ def main_process(myset: dict,
 
     ptxt.seed = -1
     processing.fix_seed(ptxt)
+
+    pimg.batch_size = 1
+    pimg.n_iter = 1
+    pimg.do_not_save_grid = True
 
     initial_color_corrections = None
 
@@ -127,9 +131,12 @@ def main_process(myset: dict,
                 init_img = myset['initial_img']
                 if init_img.size != (myset['width'], myset['height']):
                     init_img = init_img.resize((myset['width'], myset['height']), Image.Resampling.LANCZOS)
-            initial_color_corrections = [processing.setup_color_correction(init_img)]
         else:
             init_img = last_frame
+
+        if frame_no == 0:
+            initial_color_corrections = preprocessing.old_setup_color_correction(init_img)
+            # [processing.setup_color_correction(init_img)]
 
         ############################
         # Pre-process source frame
@@ -169,7 +176,7 @@ def main_process(myset: dict,
         #############################
         # print("Animator: Process Source Frame.")
         if apply_colour_corrections:
-            pimg.color_corrections = initial_color_corrections
+            init_img = preprocessing.old_apply_color_correction(initial_color_corrections, init_img)
 
         # Set prompts
         pimg.prompt = str(df.loc[frame_no, ['pos_prompt']][0])
@@ -182,11 +189,13 @@ def main_process(myset: dict,
             if df.loc[frame_no, ['seed_str']][0] is None else float(df.loc[frame_no, ['seed_str']][0])
         # print(f"Frame:{frame_no} Seed:{pimg.seed} Sub:{pimg.subseed} Str:{pimg.subseed_strength}")
 
-        state.job = f"Major frame {frame_no} of {frame_count}"
         pimg.init_images = [init_img]
 
         state.job = f"Major frame {frame_no} of {frame_count}"
         processed = processing.process_images(pimg)
+
+        # don't post process the loopback frame.
+        last_frame = processed.images[0]
 
         #############################
         # Post-process destination frame
@@ -204,7 +213,7 @@ def main_process(myset: dict,
         # Save frame
         #############################
         # Create and save smoothed intermediate frames
-        if frame_no > 0 and myset['smoothing'] > 0:
+        if frame_no > 0 and myset['smoothing'] > 0 and not myset['film_interpolation']:
             # working a frame behind, smooth from last_frame -> post_processed_image
             for idx, img in enumerate(postprocessing.morph(last_frame, post_processed_image, myset['smoothing'])):
                 img.save(os.path.join(myset['output_path'], f"frame_{frame_save:05}.png"))
@@ -217,8 +226,6 @@ def main_process(myset: dict,
 
         post_processed_image.save(os.path.join(myset['output_path'], f"frame_{frame_save:05}.png"))
         frame_save += 1
-
-        last_frame = post_processed_image.copy()
 
     Processed(pimg, all_images, 0, "")
     print("Done.")

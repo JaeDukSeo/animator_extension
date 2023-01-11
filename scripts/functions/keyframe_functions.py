@@ -274,6 +274,10 @@ def process_keyframes(mysettings: dict) -> pd.DataFrame:
     df.loc[:, ['pos1', 'neg1', 'pos2', 'neg2']] = df.loc[:, ['pos1', 'neg1', 'pos2', 'neg2']].ffill()
 
     # Fill out the seeds
+    for x in my_seeds:
+        if my_seeds[x] == -1:
+            my_seeds[x] = int(random.randrange(4294967294))
+
     if 0 not in my_seeds:
         print("DBG seed: No initial seed provided, adding UI one.")
         if mysettings['seed'] == -1:

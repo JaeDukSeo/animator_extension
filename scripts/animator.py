@@ -8,16 +8,13 @@
 import json
 import os
 import time
-
 import gradio as gr
-
 from scripts.functions import prepwork, sequential, loopback, export
-from modules import script_callbacks
-from modules import shared, sd_models
+from modules import script_callbacks, shared, sd_models, scripts
 
 
 def myprocess(_steps, _sampler_index, _width, _height, _cfg_scale, _denoising_strength, _total_time, _fps,
-              _smoothing, _add_noise, _noise_strength, _seed, _seed_travel, _initial_img,
+              _smoothing, _film_interpolation, _add_noise, _noise_strength, _seed, _seed_travel, _initial_img,
               _loopback_mode, _prompt_interpolation, _tmpl_pos, _tmpl_neg,
               _key_frames, _vid_gif, _vid_mp4, _vid_webm, _style_pos, _style_neg):
     # Build a dict of the settings, so we can easily pass to sub functions.
@@ -38,13 +35,17 @@ def myprocess(_steps, _sampler_index, _width, _height, _cfg_scale, _denoising_st
              'prompt_interpolation': bool(_prompt_interpolation),
              'add_noise': _add_noise,
              'smoothing': int(_smoothing),
+             'film_interpolation': int(_film_interpolation),
              'tmpl_pos': str(_tmpl_pos).strip(),
              'tmpl_neg': str(_tmpl_neg).strip(),
              '_style_pos': str(_style_pos).strip(),
              '_style_neg': str(_style_neg).strip(),
              'noise_strength': float(_noise_strength),
              'loopback': bool(_loopback_mode),
-             'source': ""}
+             'source': "",
+             'debug': os.path.exists('debug.txt')}
+
+    print("Script Path (myprocess): ", scripts.basedir())
 
     # Sort out output folder
     if len(shared.opts.animatoranon_output_folder.strip())> 0:
@@ -139,7 +140,9 @@ def ui_block_animation():
         with gr.Row():
             total_time = gr.Number(label="Total Animation Length (s)", lines=1, value=10.0)
             fps = gr.Number(label="Framerate", lines=1, value=15.0)
+        with gr.Row():
             smoothing = gr.Slider(label="Smoothing_Frames", minimum=0, maximum=32, step=1, value=0)
+            film_interpolation = gr.Checkbox(label="FILM Interpolation", value=False)
         with gr.Row():
             add_noise = gr.Checkbox(label="Add_Noise", value=False)
             noise_strength = gr.Slider(label="Noise Strength", minimum=0.0, maximum=1.0, step=0.01,
@@ -147,7 +150,7 @@ def ui_block_animation():
         with gr.Row():
             loopback_mode = gr.Checkbox(label='Loopback Mode', value=True)
 
-    return total_time, fps, smoothing, add_noise, noise_strength, loopback_mode
+    return total_time, fps, smoothing, film_interpolation, add_noise, noise_strength, loopback_mode
 
 
 def ui_block_processing():
@@ -240,7 +243,8 @@ def on_ui_tabs():
                     steps, sampler_index, width, height, cfg_scale, denoising_strength, seed, seed_travel, image_list =\
                         ui_block_generation()
 
-                    total_time, fps, smoothing, add_noise, noise_strength, loopback_mode = ui_block_animation()
+                    total_time, fps, smoothing, film_interpolation, add_noise, noise_strength, loopback_mode =\
+                        ui_block_animation()
 
                     prompt_interpolation, tmpl_pos, style_pos, tmpl_neg, style_neg = ui_block_processing()
 
@@ -255,8 +259,8 @@ def on_ui_tabs():
 
             btn_proc.click(fn=myprocess,
                            inputs=[steps, sampler_index, width, height, cfg_scale, denoising_strength, total_time,
-                                   fps, smoothing, add_noise, noise_strength, seed, seed_travel, image_list,
-                                   loopback_mode, prompt_interpolation,
+                                   fps, smoothing, film_interpolation, add_noise, noise_strength, seed, seed_travel,
+                                   image_list, loopback_mode, prompt_interpolation,
                                    tmpl_pos, tmpl_neg, key_frames, vid_gif, vid_mp4, vid_webm, style_pos, style_neg],
                            outputs=gallery)
 
@@ -277,8 +281,8 @@ def on_ui_settings():
     mysection = ('animatoranon', 'Animator Extension')
 
     shared.opts.add_option("animatoranon_film_folder",
-                           shared.OptionInfo('c:/ai/film',
-                                             label="FILM folder (contains predict.py)",
+                           shared.OptionInfo('C:/AI/frame_interpolation/film.bat',
+                                             label="FILM batch or script file, including full path",
                                              section=mysection))
     shared.opts.add_option("animatoranon_prop_folder",
                            shared.OptionInfo('c:/ai/props',

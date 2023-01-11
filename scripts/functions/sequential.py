@@ -144,7 +144,7 @@ def main_process(myset: dict,
         # Save frame
         #
         # Create and save smoothed intermediate frames
-        if frame_no > 0 and myset['smoothing'] > 0:
+        if frame_no > 0 and myset['smoothing'] > 0 and not myset['film_interpolation']:
             # working a frame behind, smooth from last_frame -> post_processed_image
             for idx, img in enumerate(postprocessing.morph(last_frame, post_processed_image, myset['smoothing'])):
                 img.save(os.path.join(myset['output_path'], f"frame_{frame_save:05}.png"))
