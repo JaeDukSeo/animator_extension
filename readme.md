@@ -39,6 +39,22 @@ Or use this command:
 
 `git clone https://github.com/Animator-Anon/animator_extension extensions/animator_extension`
 
+## Keyframe example:
+There seems to be confusion on how to use the keyframes. Copy them into the keyframe box and change the values to suit.
+Here is an example:
+
+    0 | template | black and white, silent film, film grain | low quality, cropped
+    0 | transform | 2 | 0 | 0 | 0
+    0   | prompt | Shot of a sleeping person, possibly the narrator, in a dreamlike state | 
+    8   | prompt | Shot of a bright sun being extinguished, symbolizing the loss of hope |
+    16  | prompt | Close-up shot of stars wandering aimlessly in the darkness of space |
+    24  | prompt | Close-up shot of the barren and desolate landscape, with no sign of life or movement |
+    32  | prompt | Wide shot of the icy and dark earth, spinning in the moonless air |
+
+This will set up at time 0, the templates which will be appended onto the prompts at each prompt keyframe.
+Also a transform is started at time 0. The effect of all of these will be a zoom in on a constantly changing scene, as
+the different prompts are applied at the times. No seeds have been specified, so they will be random.
+
 ## Explanation of settings:
 
 Many explanations exist in the up in expandable sections of the page. Look for a triangle right side.
