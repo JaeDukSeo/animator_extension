@@ -55,6 +55,26 @@ This will set up at time 0, the templates which will be appended onto the prompt
 Also a transform is started at time 0. The effect of all of these will be a zoom in on a constantly changing scene, as
 the different prompts are applied at the times. No seeds have been specified, so they will be random.
 
+## Persistent Settings:
+
+There are some persistent settings that are on the WebUI settings page. These will be stored by WebUI.
+- FILM batch or script file, including full path
+    - Full path to a batch file that can be called for FILM interpolation. The bat file will do what ever is required to
+  make the FILM interpolation happening. The bat file must take two arguments. The first one being the GLOB path and 
+  pattern for the input files, and the second being the number of passes or times to interpolate. This isn't the same as
+  adding n frames inbetween every source frame, but the number of times to add frames between every frame. This works
+  out to be adding 2^(n-1) frames between every source frame? Don't quote me on that.
+  For example, my bat file:
+
+call %USERPROFILE%\miniconda3\condabin\conda.bat activate ldm \
+python -m eval.interpolator_cli --pattern "%1" --model_path pretrained_models\film_net\Style\saved_model --times_to_interpolate %2 \
+call %USERPROFILE%\miniconda3\condabin\conda.bat deactivate
+
+- Prop folder
+    - The folder that prop pictures will be read from.
+- New output folder
+    - Output folder specifically used by this extension. Saves loading up the general output folders. 
+
 ## Explanation of settings:
 
 Many explanations exist in the up in expandable sections of the page. Look for a triangle right side.

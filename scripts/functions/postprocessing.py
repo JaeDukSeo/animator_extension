@@ -5,7 +5,10 @@ from PIL import Image, ImageDraw, ImageFont
 
 
 def paste_prop(img: Image, props: dict, prop_folder: str) -> Image:
-    img2 = img.convert('RGBA')
+    if img.mode != 'RGB':
+        img2 = img.convert('RGBA')
+    else:
+        img2 = img
 
     for prop_name in props:
         # prop_name | prop filename | x pos | y pos | scale | rotation
@@ -28,7 +31,7 @@ def paste_prop(img: Image, props: dict, prop_folder: str) -> Image:
         tmplayer.paste(prop2, (int(x - w3 / 2), int(y - h3 / 2)))
         img2 = Image.alpha_composite(img2, tmplayer)
 
-    return img2.convert("RGB")
+    return img2# .convert("RGB")
 
 
 def render_text_block(img: Image, text_blocks: dict) -> Image:
@@ -87,10 +90,13 @@ def morph(img1: Image, img2: Image, count: int) -> list:
             0.8 (4/5)
     img2:1
     """
-    arr1 = np.array(img1)
-    diff = (np.array(img2).astype('int16') - arr1.astype('int16'))
+    # print(f"img1: {img1.mode} img2: {img2.mode}")
+    arr1 = np.array(img1).astype('float')
+    diff = (np.array(img2).astype('float') - arr1) / (count+1)
     img_list = []
-    for x in range(1, count + 1):
-        img_list.append(Image.fromarray((arr1 + diff * (x / (count + 1))).astype('uint8'), 'RGB'))
+    for x in range(0, count):
+        print(f"x: {x}")
+        arr1 += diff
+        img_list.append(Image.fromarray(arr1.astype('uint8'), 'RGBA'))
 
     return img_list

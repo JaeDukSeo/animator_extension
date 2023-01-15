@@ -116,19 +116,20 @@ def main_process(myset: dict,
         if myset['source'] == 'video':
             source_cap.set(1, frame_no)
             ret, tmp_array = source_cap.read()
-            post_processed_image = Image.fromarray(cv2.cvtColor(tmp_array, cv2.COLOR_BGR2RGB).astype('uint8'), 'RGB')
+            post_processed_image = Image.fromarray(cv2.cvtColor(tmp_array, cv2.COLOR_BGR2RGB).astype('uint8'), 'RGBA')
         elif myset['source'] == 'images':
             if frame_no >= len(source_cap):
                 post_processed_image = Image.open(source_cap[-1])
                 print('Out of frames, reverting to last frame!')
             else:
                 post_processed_image = Image.open(source_cap[frame_no])
-            if post_processed_image.mode != 'RGB':
-                post_processed_image = post_processed_image.convert('RGB')
+
         else:
             processed = processing.process_images(ptxt)
             post_processed_image = processed.images[0].copy()
 
+        if post_processed_image.mode != 'RGBA':
+            post_processed_image = post_processed_image.convert('RGBA')
         #
         # Post-process destination frame
         #

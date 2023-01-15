@@ -110,15 +110,13 @@ def main_process(myset: dict,
         if myset['source'] == 'video':
             source_cap.set(1, frame_no)
             ret, tmp_array = source_cap.read()
-            init_img = Image.fromarray(cv2.cvtColor(tmp_array, cv2.COLOR_BGR2RGB).astype('uint8'), 'RGB')
+            init_img = Image.fromarray(cv2.cvtColor(tmp_array, cv2.COLOR_BGR2RGB).astype('uint8'), 'RGBA')
         elif myset['source'] == 'images':
             if frame_no >= len(source_cap):
                 init_img = Image.open(source_cap[-1])
                 print('Out of frames, reverting to last frame!')
             else:
                 init_img = Image.open(source_cap[frame_no])
-            if init_img.mode != 'RGB':
-                init_img = init_img.convert('RGB')
         elif frame_no == 0:
             # Generate initial image
             print(f"Initial Image: {myset['initial_img']}")
@@ -133,6 +131,9 @@ def main_process(myset: dict,
                     init_img = init_img.resize((myset['width'], myset['height']), Image.Resampling.LANCZOS)
         else:
             init_img = last_frame
+
+        if init_img.mode != 'RGBA':
+            init_img = init_img.convert('RGBA')
 
         if frame_no == 0:
             initial_color_corrections = preprocessing.old_setup_color_correction(init_img)
@@ -194,9 +195,6 @@ def main_process(myset: dict,
         state.job = f"Major frame {frame_no} of {frame_count}"
         processed = processing.process_images(pimg)
 
-        # don't post process the loopback frame.
-        last_frame = processed.images[0]
-
         #############################
         # Post-process destination frame
         #############################
@@ -223,6 +221,9 @@ def main_process(myset: dict,
         # print("Animator: Save Frame")
         if frame_no % int(myset['fps']) == 0:
             all_images.append(post_processed_image)
+
+        # don't post process the loopback frame.
+        last_frame = processed.images[0]
 
         post_processed_image.save(os.path.join(myset['output_path'], f"frame_{frame_save:05}.png"))
         frame_save += 1

@@ -48,7 +48,7 @@ def myprocess(_steps, _sampler_index, _width, _height, _cfg_scale, _denoising_st
     print("Script Path (myprocess): ", scripts.basedir())
 
     # Sort out output folder
-    if len(shared.opts.animatoranon_output_folder.strip())> 0:
+    if len(shared.opts.animatoranon_output_folder.strip()) > 0:
         output_parent_folder = shared.opts.animatoranon_output_folder.strip()
     elif myset['loopback']:
         output_parent_folder = shared.opts.outdir_img2img_samples
@@ -82,7 +82,6 @@ def myprocess(_steps, _sampler_index, _width, _height, _cfg_scale, _denoising_st
     if not shared.state.interrupted:
         # Generation not cancelled, go ahead and render the videos without stalling.
         export.make_videos(myset)
-
     return result
 
 
@@ -112,8 +111,8 @@ def ui_block_generation():
 
         with gr.Row():
             with gr.Accordion("Initial Image", open=False):
-                initial_img = gr.inputs.Image(label = 'Upload starting image',
-                                              image_mode ='RGB',
+                initial_img = gr.inputs.Image(label='Upload starting image',
+                                              image_mode='RGB',
                                               type='pil',
                                               optional=True)
 
@@ -221,11 +220,11 @@ def ui_block_output():
             vid_mp4 = gr.Checkbox(label="MP4", value=False)
             vid_webm = gr.Checkbox(label="WEBM", value=True)
 
-        gallery = gr.Gallery(label="gallery", show_label=True).style(grid=5, height="auto")
-
         with gr.Row():
             btn_proc = gr.Button(value="Process")
             btn_stop = gr.Button(value='Stop')
+
+        gallery = gr.Gallery(label="gallery", show_label=True).style(grid=5, height="auto")
 
     return vid_gif, vid_mp4, vid_webm, gallery, btn_proc, btn_stop
 
@@ -258,17 +257,15 @@ def on_ui_tabs():
                 vid_gif, vid_mp4, vid_webm, gallery, btn_proc, btn_stop = ui_block_output()
 
             btn_proc.click(fn=myprocess,
-                           inputs=[steps, sampler_index, width, height, cfg_scale, denoising_strength, total_time,
-                                   fps, smoothing, film_interpolation, add_noise, noise_strength, seed, seed_travel,
-                                   image_list, loopback_mode, prompt_interpolation,
+                           inputs=[steps, sampler_index, width, height, cfg_scale, denoising_strength,
+                                   total_time, fps, smoothing, film_interpolation, add_noise, noise_strength, seed,
+                                   seed_travel, image_list, loopback_mode, prompt_interpolation,
                                    tmpl_pos, tmpl_neg, key_frames, vid_gif, vid_mp4, vid_webm, style_pos, style_neg],
                            outputs=gallery)
 
-            btn_stop.click(
-                fn=lambda: shared.state.interrupt(),
-                inputs=[],
-                outputs=[],
-            )
+            btn_stop.click(fn=lambda: shared.state.interrupt(),
+                           inputs=[],
+                           outputs=[])
 
     return (animator_tabs, "Animator", "animator"),
 
@@ -292,7 +289,6 @@ def on_ui_settings():
                            shared.OptionInfo('',
                                              label="New output folder",
                                              section=mysection))
-
 
 
 script_callbacks.on_ui_tabs(on_ui_tabs)
