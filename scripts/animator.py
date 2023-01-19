@@ -162,14 +162,24 @@ def ui_block_processing():
         prompt_interpolation = gr.Checkbox(label='Prompt Interpolation', value=True)
         with gr.Row():
             tmpl_pos = gr.Textbox(label="Positive Prompts", lines=1, value="")
-            style_pos = gr.Dropdown(label="Use pos prompts from style",
-                                    choices=[k for k, v in shared.prompt_styles.styles.items()],
-                                    value=next(iter(shared.prompt_styles.styles.keys())))
+            try:
+                style_pos = gr.Dropdown(label="Use pos prompts from style",
+                                        choices=[k for k, v in shared.prompt_styles.styles.items()],
+                                        value=next(iter(shared.prompt_styles.styles.keys())))
+            except StopIteration as e:
+                style_pos = gr.Dropdown(label="Use pos prompts from style",
+                                        choices=[k for k, v in shared.prompt_styles.styles.items()],
+                                        value=None)
         with gr.Row():
             tmpl_neg = gr.Textbox(label="Negative Prompts", lines=1, value="")
-            style_neg = gr.Dropdown(label="Use neg prompts from style",
-                                    choices=[k for k, v in shared.prompt_styles.styles.items()],
-                                    value=next(iter(shared.prompt_styles.styles.keys())))
+            try:
+                style_neg = gr.Dropdown(label="Use neg prompts from style",
+                                        choices=[k for k, v in shared.prompt_styles.styles.items()],
+                                        value=next(iter(shared.prompt_styles.styles.keys())))
+            except StopIteration as e:
+                style_neg = gr.Dropdown(label="Use neg prompts from style",
+                                        choices=[k for k, v in shared.prompt_styles.styles.items()],
+                                        value=None)
 
     return prompt_interpolation, tmpl_pos, style_pos, tmpl_neg, style_neg
 
